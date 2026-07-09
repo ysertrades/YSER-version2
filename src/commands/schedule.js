@@ -29,7 +29,7 @@ module.exports = {
 
     async execute(interaction) {
         if (!(await isOwner(interaction))) {
-            return interaction.reply({ content: "❌ Server owner only.", ephemeral: true });
+            return interaction.reply({ content: "Server owner only.", ephemeral: true });
         }
 
         const sub = interaction.options.getSubcommand();
@@ -47,7 +47,7 @@ module.exports = {
             const embedData = guildEmbeds[embedName];
 
             if (!embedData) {
-                return interaction.reply({ content: `❌ Embed **${embedName}** not found.`, ephemeral: true });
+                return interaction.reply({ content: "Embed **" + embedName + "** not found.", ephemeral: true });
             }
 
             const [year, month, day] = dateStr.split("-").map(Number);
@@ -55,18 +55,18 @@ module.exports = {
             const nextRun = new Date(year, month - 1, day, hour, minute);
 
             if (isNaN(nextRun.getTime()) || nextRun <= new Date()) {
-                return interaction.reply({ content: "❌ Invalid date/time. Must be in the future.", ephemeral: true });
+                return interaction.reply({ content: "Invalid date/time. Must be in the future.", ephemeral: true });
             }
 
-            const scheduleId = `sched_${Date.now()}`;
+            const scheduleId = "sched_" + Date.now();
             if (!schedules[interaction.guildId]) schedules[interaction.guildId] = {};
-
+            
             schedules[interaction.guildId][scheduleId] = {
-                embedName,
-                embedData,
+                embedName: embedName,
+                embedData: embedData,
                 channelId: channel.id,
                 nextRun: nextRun.toISOString(),
-                repeat,
+                repeat: repeat,
                 createdBy: interaction.user.id
             };
 
@@ -74,8 +74,8 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
-                .setTitle("✅ Scheduled")
-                .setDescription(`**${embedName}** scheduled for ${dateStr} ${timeStr}\nChannel: ${channel}\nRepeat: ${repeat}`)
+                .setTitle("Scheduled")
+                .setDescription("**" + embedName + "** scheduled for " + dateStr + " " + timeStr + "\nChannel: " + channel.toString() + "\nRepeat: " + repeat)
                 .setTimestamp();
 
             await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -90,12 +90,12 @@ module.exports = {
             }
 
             const description = entries.map(([id, s]) => 
-                `• **${s.embedName}** — ${new Date(s.nextRun).toLocaleString()} (${s.repeat})`
+                "• **" + s.embedName + "** — " + new Date(s.nextRun).toLocaleString() + " (" + s.repeat + ")"
             ).join("\n");
 
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
-                .setTitle("📅 Scheduled Messages")
+                .setTitle("Scheduled Messages")
                 .setDescription(description)
                 .setTimestamp();
 
@@ -107,9 +107,9 @@ module.exports = {
             if (schedules[interaction.guildId]?.[scheduleId]) {
                 delete schedules[interaction.guildId][scheduleId];
                 await writeJSON("schedules.json", schedules);
-                await interaction.reply({ content: "✅ Schedule deleted.", ephemeral: true });
+                await interaction.reply({ content: "Schedule deleted.", ephemeral: true });
             } else {
-                await interaction.reply({ content: "❌ Schedule not found.", ephemeral: true });
+                await interaction.reply({ content: "Schedule not found.", ephemeral: true });
             }
         }
     }
