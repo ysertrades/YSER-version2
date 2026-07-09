@@ -29,30 +29,29 @@ module.exports = {
 
         if (sub === "bias") {
             if (!(await isOwner(interaction))) {
-                return interaction.reply({ content: "❌ Server owner only.", ephemeral: true });
+                return interaction.reply({ content: "Server owner only.", ephemeral: true });
             }
 
-            const pollId = `bias_${Date.now()}`;
+            const pollId = "bias_" + Date.now();
             const options = [
                 { label: "Bullish", emoji: "🟢", voters: [] },
                 { label: "Bearish", emoji: "🔴", voters: [] },
                 { label: "Neutral", emoji: "⚪", voters: [] }
             ];
 
-            polls[pollId] = { question: "Market Bias", options, guildId: interaction.guildId };
+            polls[pollId] = { question: "Market Bias", options: options, guildId: interaction.guildId };
             await writeJSON("polls.json", polls);
 
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
-                .setTitle("📊 Market Bias")
-                .setDescription(options.map((opt, i) => `${opt.emoji} ${opt.label}: **0** votes`).join("
-"))
+                .setTitle("Market Bias")
+                .setDescription(options.map((opt, i) => opt.emoji + " " + opt.label + ": **0** votes").join("\n"))
                 .setFooter({ text: "Click a button to vote" });
 
             const rows = options.map((opt, i) => 
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`poll_${pollId}_${i}`)
+                        .setCustomId("poll_" + pollId + "_" + i)
                         .setLabel(opt.label)
                         .setEmoji(opt.emoji)
                         .setStyle(ButtonStyle.Primary)
@@ -64,32 +63,31 @@ module.exports = {
 
         if (sub === "create") {
             if (!(await isOwner(interaction))) {
-                return interaction.reply({ content: "❌ Server owner only.", ephemeral: true });
+                return interaction.reply({ content: "Server owner only.", ephemeral: true });
             }
 
             const question = interaction.options.getString("question");
             const options = [];
             const emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"];
-
+            
             for (let i = 1; i <= 5; i++) {
-                const opt = interaction.options.getString(`option${i}`);
+                const opt = interaction.options.getString("option" + i);
                 if (opt) options.push({ label: opt, emoji: emojis[i-1], voters: [] });
             }
 
-            const pollId = `poll_${Date.now()}`;
-            polls[pollId] = { question, options, guildId: interaction.guildId };
+            const pollId = "poll_" + Date.now();
+            polls[pollId] = { question: question, options: options, guildId: interaction.guildId };
             await writeJSON("polls.json", polls);
 
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
                 .setTitle(question)
-                .setDescription(options.map((opt, i) => `${opt.emoji} ${opt.label}: **0** votes`).join("
-"))
+                .setDescription(options.map((opt, i) => opt.emoji + " " + opt.label + ": **0** votes").join("\n"))
                 .setFooter({ text: "Click a button to vote" });
 
             const rows = [];
             let currentRow = new ActionRowBuilder();
-
+            
             options.forEach((opt, i) => {
                 if (i > 0 && i % 5 === 0) {
                     rows.push(currentRow);
@@ -97,7 +95,7 @@ module.exports = {
                 }
                 currentRow.addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`poll_${pollId}_${i}`)
+                        .setCustomId("poll_" + pollId + "_" + i)
                         .setLabel(opt.label)
                         .setEmoji(opt.emoji)
                         .setStyle(ButtonStyle.Primary)
@@ -110,16 +108,16 @@ module.exports = {
 
         if (sub === "delete") {
             if (!(await isOwner(interaction))) {
-                return interaction.reply({ content: "❌ Server owner only.", ephemeral: true });
+                return interaction.reply({ content: "Server owner only.", ephemeral: true });
             }
 
             const pollId = interaction.options.getString("id");
             if (polls[pollId]) {
                 delete polls[pollId];
                 await writeJSON("polls.json", polls);
-                await interaction.reply({ content: `✅ Poll deleted.`, ephemeral: true });
+                await interaction.reply({ content: "Poll deleted.", ephemeral: true });
             } else {
-                await interaction.reply({ content: `❌ Poll not found.`, ephemeral: true });
+                await interaction.reply({ content: "Poll not found.", ephemeral: true });
             }
         }
     }
