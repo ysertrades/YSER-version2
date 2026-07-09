@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, StringSelectMenuBuilder } = require("discord.js");
+const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, EmbedBuilder } = require("discord.js");
 const { readJSON, writeJSON } = require("../utils/jsonManager");
 const { buildEmbed, buildButtons, createPremiumEmbed } = require("../utils/embedBuilder");
 const { isOwner } = require("../utils/permissions");
@@ -51,7 +51,7 @@ module.exports = {
 
     async execute(interaction) {
         if (!(await isOwner(interaction))) {
-            return interaction.reply({ content: "❌ Server owner only.", ephemeral: true });
+            return interaction.reply({ content: "Server owner only.", ephemeral: true });
         }
 
         const sub = interaction.options.getSubcommand();
@@ -87,16 +87,16 @@ module.exports = {
         if (sub === "save") {
             const name = interaction.options.getString("name");
             const tempData = interaction.client.tempEmbeds?.[interaction.user.id];
-
+            
             if (!tempData) {
-                return interaction.reply({ content: "❌ No embed to save. Create one first with `/embed create`", ephemeral: true });
+                return interaction.reply({ content: "No embed to save. Create one first with /embed create", ephemeral: true });
             }
 
             if (!embeds[interaction.guildId]) embeds[interaction.guildId] = {};
             embeds[interaction.guildId][name] = tempData;
             await writeJSON("embeds.json", embeds);
 
-            const embed = createPremiumEmbed("✅ Embed Saved", `Saved as **${name}**`);
+            const embed = createPremiumEmbed("Embed Saved", "Saved as **" + name + "**");
             await interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
@@ -107,14 +107,13 @@ module.exports = {
             const data = guildEmbeds[name];
 
             if (!data) {
-                return interaction.reply({ content: `❌ Embed **${name}** not found.`, ephemeral: true });
+                return interaction.reply({ content: "Embed **" + name + "** not found.", ephemeral: true });
             }
 
             const embed = buildEmbed(data);
             const buttons = buildButtons(data.buttons || []);
             const msg = await channel.send({ embeds: [embed], components: buttons });
 
-            // Add reactions if configured
             if (data.reactionRoles) {
                 for (const rr of data.reactionRoles) {
                     await msg.react(rr.emoji);
@@ -123,7 +122,7 @@ module.exports = {
                 await writeJSON("embeds.json", embeds);
             }
 
-            const reply = createPremiumEmbed("✅ Embed Sent", `Sent **${name}** to ${channel}`);
+            const reply = createPremiumEmbed("Embed Sent", "Sent **" + name + "** to " + channel.toString());
             await interaction.reply({ embeds: [reply], ephemeral: true });
         }
 
@@ -132,22 +131,22 @@ module.exports = {
             if (embeds[interaction.guildId]?.[name]) {
                 delete embeds[interaction.guildId][name];
                 await writeJSON("embeds.json", embeds);
-                const embed = createPremiumEmbed("🗑️ Deleted", `Removed **${name}**`);
+                const embed = createPremiumEmbed("Deleted", "Removed **" + name + "**");
                 await interaction.reply({ embeds: [embed], ephemeral: true });
             } else {
-                await interaction.reply({ content: `❌ Embed **${name}** not found.`, ephemeral: true });
+                await interaction.reply({ content: "Embed **" + name + "** not found.", ephemeral: true });
             }
         }
 
         if (sub === "list") {
             const guildEmbeds = embeds[interaction.guildId] || {};
             const names = Object.keys(guildEmbeds);
-
+            
             if (names.length === 0) {
                 return interaction.reply({ content: "No saved embeds.", ephemeral: true });
             }
 
-            const embed = createPremiumEmbed("📋 Saved Embeds", names.map(n => `• ${n}`).join("\n"));
+            const embed = createPremiumEmbed("Saved Embeds", names.map(n => "• " + n).join("\n"));
             await interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
@@ -157,7 +156,7 @@ module.exports = {
             const data = guildEmbeds[name];
 
             if (!data) {
-                return interaction.reply({ content: `❌ Embed **${name}** not found.`, ephemeral: true });
+                return interaction.reply({ content: "Embed **" + name + "** not found.", ephemeral: true });
             }
 
             interaction.client.tempEmbeds = interaction.client.tempEmbeds || {};
@@ -165,7 +164,7 @@ module.exports = {
 
             const modal = new ModalBuilder()
                 .setCustomId("embed_modal")
-                .setTitle(`Edit: ${name}`);
+                .setTitle("Edit: " + name);
 
             const titleInput = new TextInputBuilder()
                 .setCustomId("title").setLabel("Title").setStyle(TextInputStyle.Short)
@@ -192,8 +191,7 @@ module.exports = {
             );
 
             await interaction.showModal(modal);
-
-            // Save edited embed after modal submit
+            
             const filter = i => i.customId === "embed_modal" && i.user.id === interaction.user.id;
             try {
                 const submitted = await interaction.awaitModalSubmit({ filter, time: 300000 });
@@ -207,14 +205,14 @@ module.exports = {
                     buttons: data.buttons || [],
                     reactionRoles: data.reactionRoles || []
                 };
-
+                
                 embeds[interaction.guildId][name] = newData;
                 await writeJSON("embeds.json", embeds);
-
+                
                 const preview = buildEmbed(newData);
-                await submitted.reply({ content: "✅ Embed updated.", embeds: [preview], ephemeral: true });
+                await submitted.reply({ content: "Embed updated.", embeds: [preview], ephemeral: true });
             } catch {
-                // Timeout - handled by interactionHandler
+                // Timeout
             }
         }
 
@@ -229,14 +227,14 @@ module.exports = {
             const data = guildEmbeds[name];
 
             if (!data) {
-                return interaction.reply({ content: `❌ Embed **${name}** not found.`, ephemeral: true });
+                return interaction.reply({ content: "Embed **" + name + "** not found.", ephemeral: true });
             }
 
             if (!data.buttons) data.buttons = [];
 
             const button = {
-                label,
-                customId: type === "role" ? `rolebtn_${value}` : undefined,
+                label: label,
+                customId: type === "role" ? "rolebtn_" + value : undefined,
                 url: type === "link" ? value : undefined,
                 style: type,
                 emoji: emoji || undefined
@@ -245,7 +243,7 @@ module.exports = {
             data.buttons.push(button);
             await writeJSON("embeds.json", embeds);
 
-            const reply = createPremiumEmbed("🔘 Button Added", `Added **${label}** to **${name}**`);
+            const reply = createPremiumEmbed("Button Added", "Added **" + label + "** to **" + name + "**");
             await interaction.reply({ embeds: [reply], ephemeral: true });
         }
 
@@ -258,14 +256,14 @@ module.exports = {
             const data = guildEmbeds[name];
 
             if (!data) {
-                return interaction.reply({ content: `❌ Embed **${name}** not found.`, ephemeral: true });
+                return interaction.reply({ content: "Embed **" + name + "** not found.", ephemeral: true });
             }
 
             if (!data.reactionRoles) data.reactionRoles = [];
-            data.reactionRoles.push({ emoji, roleId: role.id });
+            data.reactionRoles.push({ emoji: emoji, roleId: role.id });
             await writeJSON("embeds.json", embeds);
 
-            const reply = createPremiumEmbed("😀 Reaction Role Added", `${emoji} → ${role.name} on **${name}**`);
+            const reply = createPremiumEmbed("Reaction Role Added", emoji + " → " + role.name + " on **" + name + "**");
             await interaction.reply({ embeds: [reply], ephemeral: true });
         }
     }
