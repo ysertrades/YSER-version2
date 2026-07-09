@@ -21,7 +21,7 @@ module.exports = {
 
     async execute(interaction) {
         if (!(await isOwner(interaction))) {
-            return interaction.reply({ content: "❌ Server owner only.", ephemeral: true });
+            return interaction.reply({ content: "Server owner only.", ephemeral: true });
         }
 
         const sub = interaction.options.getSubcommand();
@@ -31,28 +31,28 @@ module.exports = {
         if (sub === "set") {
             const command = interaction.options.getString("command");
             const role = interaction.options.getRole("role");
-
+            
             perms[interaction.guildId][command] = { roleId: role.id, roleName: role.name };
             await writeJSON("permissions.json", perms);
 
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
-                .setDescription(`✅ **/${command}** now requires **${role.name}**`);
+                .setDescription("**/" + command + "** now requires **" + role.name + "**");
             await interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
         if (sub === "list") {
             const guildPerms = perms[interaction.guildId] || {};
             const entries = Object.entries(guildPerms);
-
+            
             if (entries.length === 0) {
                 return interaction.reply({ content: "No permission overrides.", ephemeral: true });
             }
 
-            const description = entries.map(([cmd, p]) => `• **/${cmd}** → <@&${p.roleId}>`).join("\n");
+            const description = entries.map(([cmd, p]) => "• **/" + cmd + "** → <@&" + p.roleId + ">").join("\n");
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
-                .setTitle("🔐 Permissions")
+                .setTitle("Permissions")
                 .setDescription(description);
             await interaction.reply({ embeds: [embed], ephemeral: true });
         }
@@ -62,9 +62,9 @@ module.exports = {
             if (perms[interaction.guildId][command]) {
                 delete perms[interaction.guildId][command];
                 await writeJSON("permissions.json", perms);
-                await interaction.reply({ content: `✅ Removed permission for **/${command}**`, ephemeral: true });
+                await interaction.reply({ content: "Removed permission for **/" + command + "**", ephemeral: true });
             } else {
-                await interaction.reply({ content: `❌ No permission set for **/${command}**`, ephemeral: true });
+                await interaction.reply({ content: "No permission set for **/" + command + "**", ephemeral: true });
             }
         }
     }
