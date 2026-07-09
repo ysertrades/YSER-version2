@@ -1,0 +1,29 @@
+{
+  "name": "yser-sapphire-bot",
+  "version": "1.0.0",
+  "description": "Premium Discord Bot - YSER SAPPHIRE",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "deploy": "node src/utils/deployCommands.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "discord.js",
+    "premium"
+  ],
+  "author": "YSER",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.16.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
