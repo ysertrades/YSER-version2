@@ -11,7 +11,7 @@ module.exports = {
         const limit = interaction.options.getInteger("limit") || 10;
         const xpData = await readJSON("xp.json");
         const guildData = xpData[interaction.guildId] || {};
-
+        
         const sorted = Object.entries(guildData)
             .sort((a, b) => {
                 if (b[1].level !== a[1].level) return b[1].level - a[1].level;
@@ -25,10 +25,9 @@ module.exports = {
 
         const medals = ["🥇", "🥈", "🥉"];
         const description = sorted.map(([userId, data], i) => {
-            const medal = medals[i] || `\`#${i + 1}\``;
-            return `${medal} <@${userId}> — Level **${data.level}** (${data.xp} XP)`;
-        }).join("
-");
+            const medal = medals[i] || ("`#" + (i + 1) + "`");
+            return medal + " <@" + userId + "> — Level **" + data.level + "** (" + data.xp + " XP)";
+        }).join("\n");
 
         const embed = new EmbedBuilder()
             .setColor(0x2B2D42)
