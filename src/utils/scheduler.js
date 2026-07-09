@@ -1,33 +1,31 @@
 const { readJSON, writeJSON } = require("./jsonManager");
-const { buildEmbed } = require("./embedBuilder");
+const { buildEmbed, buildButtons } = require("./embedBuilder");
 
 let client;
 
 function initScheduler(discordClient) {
     client = discordClient;
     checkSchedules();
-    setInterval(checkSchedules, 60000); // Check every minute
+    setInterval(checkSchedules, 60000);
 }
 
 async function checkSchedules() {
     const schedules = await readJSON("schedules.json");
     const now = new Date();
-
+    
     for (const [guildId, guildSchedules] of Object.entries(schedules)) {
         for (const [scheduleId, schedule] of Object.entries(guildSchedules)) {
             const scheduleTime = new Date(schedule.nextRun);
-
+            
             if (now >= scheduleTime) {
                 try {
                     const channel = await client.channels.fetch(schedule.channelId);
                     if (channel) {
-                        const embeds = require("./embedBuilder");
                         const embed = buildEmbed(schedule.embedData);
-                        const buttons = embeds.buildButtons(schedule.embedData.buttons || []);
+                        const buttons = buildButtons(schedule.embedData.buttons || []);
                         await channel.send({ embeds: [embed], components: buttons });
                     }
-
-                    // Update next run time
+                    
                     if (schedule.repeat === "daily") {
                         schedule.nextRun = new Date(scheduleTime.getTime() + 86400000).toISOString();
                     } else if (schedule.repeat === "weekly") {
@@ -35,10 +33,10 @@ async function checkSchedules() {
                     } else {
                         delete guildSchedules[scheduleId];
                     }
-
+                    
                     await writeJSON("schedules.json", schedules);
                 } catch (err) {
-                    console.error(`Schedule error: ${err.message}`);
+                    console.error("Schedule error: " + err.message);
                 }
             }
         }
