@@ -26,6 +26,6 @@ module.exports = {
         { symbol: "YM", tickSize: 1, tickValue: 5, microSymbol: "MYM", microTickValue: 0.5 },
         { symbol: "RTY", tickSize: 0.1, tickValue: 5, microSymbol: "M2K", microTickValue: 0.5 },
         { symbol: "GC", tickSize: 0.1, tickValue: 10, microSymbol: "MGC", microTickValue: 1 },
-        { symbol: "SI", tickSize: 0.005, tickValue: 25, microSymbol: "SIL", microTickValue: 2.5 }
+        { symbol: "SI", tickSize: 0.005, tickValue: 25, microSymbol: "SIL", microTickValue: 5 }
     ]
 };
