@@ -31,9 +31,15 @@ module.exports = {
 
         const sub = interaction.options.getSubcommand();
 
+        // --- LOCK CHANNEL ---
         if (sub === "channel") {
             const channel = interaction.options.getChannel("channel") || interaction.channel;
-            await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: false });
+            
+            // Deny SendMessages for @everyone
+            await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { 
+                SendMessages: false 
+            });
+            
             const embed = new EmbedBuilder()
                 .setColor(0xE74C3C)
                 .setDescription("🔒 **" + channel.toString() + "** has been locked.")
@@ -41,9 +47,16 @@ module.exports = {
             await interaction.reply({ embeds: [embed] });
         }
 
+        // --- UNLOCK CHANNEL ---
         if (sub === "unlock") {
             const channel = interaction.options.getChannel("channel") || interaction.channel;
-            await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: null });
+            
+            // FIX: Use true instead of null to explicitly allow sending
+            // This overrides any category-level denies
+            await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { 
+                SendMessages: true 
+            });
+            
             const embed = new EmbedBuilder()
                 .setColor(0x2ECC71)
                 .setDescription("🔓 **" + channel.toString() + "** has been unlocked.")
@@ -51,10 +64,12 @@ module.exports = {
             await interaction.reply({ embeds: [embed] });
         }
 
+        // --- SLOWMODE ---
         if (sub === "slowmode") {
             const seconds = interaction.options.getInteger("seconds");
             const channel = interaction.options.getChannel("channel") || interaction.channel;
             await channel.setRateLimitPerUser(seconds);
+            
             const embed = new EmbedBuilder()
                 .setColor(0x2B2D42)
                 .setDescription("🐌 Slowmode set to **" + seconds + "s** in " + channel.toString() + ".")
@@ -62,21 +77,34 @@ module.exports = {
             await interaction.reply({ embeds: [embed] });
         }
 
+        // --- LOCKDOWN (SERVER-WIDE) ---
         if (sub === "lockdown") {
             const state = interaction.options.getString("state");
             const channels = interaction.guild.channels.cache.filter(c => c.isTextBased());
+            
             for (const [, channel] of channels) {
                 try {
                     if (state === "enable") {
-                        await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: false });
+                        // Lock: deny SendMessages
+                        await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { 
+                            SendMessages: false 
+                        });
                     } else {
-                        await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: null });
+                        // FIX: Unlock: explicitly allow SendMessages
+                        await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { 
+                            SendMessages: true 
+                        });
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.error(`Failed to ${state} lockdown for ${channel.name}:`, e);
+                }
             }
+            
             const embed = new EmbedBuilder()
                 .setColor(state === "enable" ? 0xE74C3C : 0x2ECC71)
-                .setDescription(state === "enable" ? "🛑 Server lockdown **ENABLED**." : "✅ Server lockdown **DISABLED**.")
+                .setDescription(state === "enable" 
+                    ? "🛑 Server lockdown **ENABLED**." 
+                    : "✅ Server lockdown **DISABLED**.")
                 .setFooter({ text: "YSER Flow" });
             await interaction.reply({ embeds: [embed] });
         }
