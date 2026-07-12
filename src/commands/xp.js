@@ -31,7 +31,7 @@ module.exports = {
             config.xpPerMessage = interaction.options.getInteger("amount");
             await writeJSON("config.json", config);
             const embed = new EmbedBuilder()
-                .setColor(0x2B2D42)
+                .setColor(0x474747)
                 .setDescription(`✅ XP per message set to **${config.xpPerMessage}**`);
             await interaction.reply({ embeds: [embed], ephemeral: true });
         }
@@ -49,7 +49,7 @@ module.exports = {
             config.xpCooldown = interaction.options.getInteger("seconds");
             await writeJSON("config.json", config);
             const embed = new EmbedBuilder()
-                .setColor(0x2B2D42)
+                .setColor(0x474747)
                 .setDescription(`✅ XP cooldown set to **${config.xpCooldown}s**`);
             await interaction.reply({ embeds: [embed], ephemeral: true });
         }
