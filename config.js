@@ -14,8 +14,8 @@ module.exports = {
 
     // Embed Design
     embed: {
-        color: 0x2B2D42,
-        footer: "YSER SAPPHIRE",
+        color: 0x474747,
+        footer: "YSER Flow",
         thumbnail: null
     },
 
