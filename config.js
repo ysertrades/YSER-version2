@@ -7,9 +7,9 @@ module.exports = {
 
     // XP Settings
     xp: {
-        perMessage: 15,
-        cooldownSeconds: 60,
-        levelFormula: (level) => Math.floor(100 * Math.pow(1.5, level - 1))
+        perMessage: 10,
+        cooldownSeconds: 20,
+        levelFormula: (level) => Math.floor(100 * Math.pow(2.0, level - 1))
     },
 
     // Embed Design
