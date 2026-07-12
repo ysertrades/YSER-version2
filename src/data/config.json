@@ -1,5 +1,5 @@
 {
-  "xpPerMessage": 15,
-  "xpCooldown": 60,
-  "levelRate": 1.5
+  "xpPerMessage": 10,
+  "xpCooldown": 20,
+  "levelRate": 2.0
 }
