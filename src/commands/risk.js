@@ -52,8 +52,8 @@ module.exports = {
         }
 
         const embed = new EmbedBuilder()
-            .setColor(0x2B2D42)
-            .setTitle(`📊 ${symbol} Risk Calculation`)
+            .setColor(0x474747)
+            .setTitle(`🏅 ${symbol} Risk Calculation`)
             .addFields(
                 { name: "Risk Amount", value: `$${riskAmount.toFixed(2)}`, inline: true },
                 { name: "Stop Points", value: `${stopPoints}`, inline: true },
