@@ -34,16 +34,16 @@ module.exports = {
 
             const pollId = "bias_" + Date.now();
             const options = [
-                { label: "Bullish", emoji: "🟢", voters: [] },
-                { label: "Bearish", emoji: "🔴", voters: [] },
-                { label: "Neutral", emoji: "⚪", voters: [] }
+                { label: "Bullish", emoji: "📈", voters: [] },
+                { label: "Bearish", emoji: "📉", voters: [] },
+                { label: "Neutral", emoji: "⌛", voters: [] }
             ];
 
             polls[pollId] = { question: "Market Bias", options: options, guildId: interaction.guildId };
             await writeJSON("polls.json", polls);
 
             const embed = new EmbedBuilder()
-                .setColor(0x2B2D42)
+                .setColor(0x474747)
                 .setTitle("Market Bias")
                 .setDescription(options.map((opt, i) => opt.emoji + " " + opt.label + ": **0** votes").join("\n"))
                 .setFooter({ text: "Click a button to vote" });
